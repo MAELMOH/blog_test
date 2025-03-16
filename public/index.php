@@ -1,8 +1,9 @@
 <?php
 require '../includes/db.php';
 
-$req = $pdo->query("SELECT * FROM articles ORDER BY date_publication DESC");
-$articles = $req->fetchAll();
+// Récupérer tous les articles publiés
+$stmt = $pdo->query("SELECT * FROM articles ORDER BY date_publication DESC");
+$articles = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -10,38 +11,60 @@ $articles = $req->fetchAll();
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Blog</title>
+    <title>Blog - Accueil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
-    <div class="container py-5">
-        <h1 class="mb-4">Bienvenue sur mon Blog</h1>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.php">📖 Mon Blog</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../admin/login.php">🔑 Admin</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">📚 Articles Récents</h1>
 
         <?php if (empty($articles)): ?>
-            <p class="alert alert-info">Aucun article publié pour le moment.</p>
+            <div class="alert alert-info text-center">Aucun article disponible pour le moment.</div>
         <?php else: ?>
-            <?php foreach ($articles as $article): ?>
-                <div class="card mb-4 shadow-sm">
-                    <div class="card-body">
-                        <h3 class="card-title">
-                            <?= htmlspecialchars($article['titre']) ?>
-                        </h3>
-
-                        <?php if (!empty($article['image'])): ?>
-                            <img src="../assets/uploads/<?= htmlspecialchars($article['image']) ?>" class="img-fluid mb-3" alt="Image de l'article">
-                        <?php endif; ?>
-
-                        <p class="card-text">
-                            <?= nl2br(htmlspecialchars($article['contenu'])) ?>
-                        </p>
-                        <small class="text-muted">Publié le <?= date('d/m/Y à H:i', strtotime($article['date_publication'])) ?></small>
+            <div class="row">
+                <?php foreach ($articles as $article): ?>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm mb-4">
+                            <?php if (!empty($article['image'])): ?>
+                                <img src="../assets/uploads/<?= htmlspecialchars($article['image']) ?>" class="card-img-top" alt="Image de l'article">
+                            <?php else: ?>
+                                <img src="../assets/uploads/default.jpg" class="card-img-top" alt="Image par défaut">
+                            <?php endif; ?>
+                            <div class="card-body">
+                                <h5 class="card-title"><?= htmlspecialchars($article['titre']) ?></h5>
+                                <p class="text-muted"><?= date('d/m/Y H:i', strtotime($article['date_publication'])) ?></p>
+                                <p class="card-text"><?= substr(htmlspecialchars($article['contenu']), 0, 100) ?>...</p>
+                                <a href="article.php?id=<?= $article['id'] ?>" class="btn btn-primary">Lire plus 📖</a>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
     </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        &copy; <?= date('Y') ?> Mon Blog | Tous droits réservés
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js"></script>
 </body>
